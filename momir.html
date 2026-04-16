@@ -1,0 +1,558 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Momir Básico</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;background:#07090c;overflow-x:hidden}
+body{font-family:'Palatino Linotype',Palatino,Georgia,serif;color:#e8dcc8;-webkit-tap-highlight-color:transparent}
+#app{max-width:480px;margin:0 auto;min-height:100vh;position:relative}
+#app.in-game{overflow:hidden;height:100vh}
+
+/* ── SETUP ── */
+.setup-screen{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:32px 20px;background:radial-gradient(ellipse at 50% -5%,rgba(201,168,76,.14) 0%,transparent 55%),#07090c}
+.setup-card{width:100%;max-width:340px;padding:44px 28px 36px;border:1px solid rgba(201,168,76,.22);border-radius:6px;background:rgba(255,255,255,.018);text-align:center;position:relative}
+.setup-card::before{content:'◆';position:absolute;top:14px;left:18px;font-size:10px;color:rgba(201,168,76,.35)}
+.setup-card::after{content:'◆';position:absolute;bottom:14px;right:18px;font-size:10px;color:rgba(201,168,76,.35)}
+.info-btn{position:absolute;top:11px;right:11px;width:28px;height:28px;border:1px solid rgba(201,168,76,.3);background:rgba(201,168,76,.05);color:rgba(201,168,76,.65);border-radius:50%;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center;transition:all .2s;line-height:1}
+.info-btn:hover{background:rgba(201,168,76,.14);color:#c9a84c;border-color:rgba(201,168,76,.55);box-shadow:0 0 12px rgba(201,168,76,.15)}
+.logo-hex{font-size:54px;color:#c9a84c;display:block;margin-bottom:8px;animation:goldPulse 3s ease-in-out infinite;text-shadow:0 0 20px rgba(201,168,76,.4)}
+.title-main{font-size:46px;font-weight:700;letter-spacing:.2em;color:#c9a84c;font-variant:small-caps;text-shadow:0 0 15px rgba(201,168,76,.3);line-height:1;margin-bottom:6px}
+.title-sub{font-size:11px;letter-spacing:.25em;color:rgba(232,220,200,.38);text-transform:uppercase;margin-bottom:36px}
+.section-label{font-size:11px;letter-spacing:.2em;color:rgba(232,220,200,.42);text-transform:uppercase;margin-bottom:14px}
+.player-btns{display:flex;justify-content:center;gap:12px;margin-bottom:32px}
+.player-btn{width:60px;height:60px;border:1px solid rgba(201,168,76,.22);background:transparent;color:rgba(232,220,200,.48);font-size:23px;font-weight:700;font-family:inherit;border-radius:4px;cursor:pointer;transition:all .2s}
+.player-btn:hover{border-color:rgba(201,168,76,.48);color:#c9a84c;background:rgba(201,168,76,.07)}
+.player-btn.active{border-color:#c9a84c;color:#c9a84c;background:rgba(201,168,76,.12);box-shadow:0 0 16px rgba(201,168,76,.14)}
+.start-btn{width:100%;padding:16px 20px;border:1px solid rgba(201,168,76,.4);background:rgba(201,168,76,.08);color:#c9a84c;font-family:inherit;font-size:15px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;border-radius:4px;cursor:pointer;transition:all .22s;margin-bottom:20px}
+.start-btn:hover{background:rgba(201,168,76,.16);box-shadow:0 0 20px rgba(201,168,76,.18)}
+.flavor-text{font-style:italic;color:rgba(232,220,200,.25);font-size:13px}
+
+/* ── GAME ── */
+.game{height:100vh;display:flex;flex-direction:column;background:radial-gradient(ellipse at 50% 35%,rgba(8,16,28,.7) 0%,transparent 65%),#07090c}
+.top-bar{display:flex;align-items:center;justify-content:space-between;padding:10px 14px;border-bottom:1px solid rgba(201,168,76,.1);background:rgba(0,0,0,.25);flex-shrink:0}
+.icon-btn{width:38px;height:38px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.07);color:rgba(232,220,200,.55);border-radius:4px;cursor:pointer;font-size:17px;display:flex;align-items:center;justify-content:center;transition:all .18s}
+.icon-btn:hover{background:rgba(201,168,76,.1);border-color:rgba(201,168,76,.22);color:#c9a84c}
+.turn-info{display:flex;flex-direction:column;align-items:center;gap:3px}
+.turn-lbl{font-size:10px;letter-spacing:.2em;color:rgba(232,220,200,.32);text-transform:uppercase}
+.player-badge{font-size:12px;font-weight:700;letter-spacing:.08em;padding:3px 13px;border:1px solid;border-radius:2px;font-variant:small-caps}
+.main{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:14px;overflow-y:auto;min-height:0}
+
+/* ── SELECT PHASE ── */
+.select-phase{width:100%;max-width:310px;display:flex;flex-direction:column;align-items:center;gap:24px;animation:fadeUp .3s ease}
+.phase-lbl{font-size:11px;letter-spacing:.2em;color:rgba(232,220,200,.38);text-transform:uppercase}
+.mana-row{display:flex;align-items:center;gap:22px}
+.mana-btn{width:56px;height:56px;border:1px solid rgba(201,168,76,.28);background:rgba(201,168,76,.07);color:#c9a84c;font-size:27px;font-weight:700;border-radius:50%;cursor:pointer;transition:all .18s;display:flex;align-items:center;justify-content:center;font-family:inherit;line-height:1;-webkit-tap-highlight-color:transparent}
+.mana-btn:hover{background:rgba(201,168,76,.14);box-shadow:0 0 16px rgba(201,168,76,.22);transform:scale(1.05)}
+.mana-btn:active{transform:scale(.95)}
+.mana-display{display:flex;flex-direction:column;align-items:center;min-width:86px}
+#mana-val{font-size:76px;font-weight:900;font-family:inherit;background:transparent;border:none;outline:none;width:94px;text-align:center;-moz-appearance:textfield;line-height:1;color:#c9a84c}
+#mana-val::-webkit-inner-spin-button,#mana-val::-webkit-outer-spin-button{-webkit-appearance:none}
+.mana-sub{font-size:10px;letter-spacing:.22em;color:rgba(232,220,200,.28);text-transform:uppercase;margin-top:-4px}
+.invoke-btn{width:100%;padding:14px 20px;border:1px solid;background:transparent;font-family:inherit;font-size:13px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;border-radius:4px;cursor:pointer;transition:all .22s}
+.invoke-btn:hover:not(:disabled){filter:brightness(1.22)}
+.invoke-btn:disabled{opacity:.52;cursor:wait}
+.error-box{background:rgba(198,40,40,.1);border:1px solid rgba(198,40,40,.32);color:#ff8a80;padding:12px 16px;border-radius:4px;font-size:14px;text-align:center;width:100%;display:none}
+.error-box.show{display:block}
+
+/* ── REVEAL PHASE ── */
+.reveal-phase{width:100%;max-width:310px;display:flex;flex-direction:column;align-items:center;gap:11px}
+.card-frame{position:relative;width:78%;max-width:245px;margin:0 auto}
+.card-img{width:100%;border-radius:10px;display:block;box-shadow:0 16px 50px rgba(0,0,0,.8);animation:cardReveal .6s cubic-bezier(.34,1.36,.64,1) forwards}
+.card-glow{position:absolute;inset:-3px;border-radius:13px;pointer-events:none;animation:glowPulse 2.2s ease-in-out infinite}
+.card-text-frame{padding:30px 22px;border:1px solid rgba(201,168,76,.28);border-radius:10px;text-align:center;width:100%;animation:fadeUp .4s ease}
+.ctf-name{font-size:20px;font-weight:700;color:#c9a84c;margin-bottom:8px}
+.ctf-type{font-style:italic;color:rgba(232,220,200,.45);font-size:14px}
+.card-info{text-align:center;animation:fadeUp .4s ease .2s both;width:100%;max-width:310px}
+.card-name-el{font-size:16px;font-weight:700;font-variant:small-caps;letter-spacing:.05em;margin-bottom:3px}
+.card-type-el{font-size:12px;color:rgba(232,220,200,.42);font-style:italic}
+.card-pt{font-size:18px;font-weight:700;margin-top:5px}
+.action-row{display:flex;gap:10px;width:100%;max-width:310px;animation:fadeUp .4s ease .38s both}
+.action-btn{flex:1;padding:11px 8px;border-radius:4px;cursor:pointer;font-family:inherit;font-size:11px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;transition:all .18s}
+.action-btn.secondary{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.07);color:rgba(232,220,200,.6)}
+.action-btn.secondary:hover{background:rgba(255,255,255,.06);color:#e8dcc8}
+.action-btn.primary{background:rgba(201,168,76,.08);border:1px solid}
+.action-btn.primary:hover{background:rgba(201,168,76,.15)}
+
+/* ── PLAYERS STRIP ── */
+.players-strip{display:flex;justify-content:center;gap:8px;padding:10px 14px 14px;border-top:1px solid rgba(201,168,76,.07);background:rgba(0,0,0,.2);flex-shrink:0}
+.p-chip{display:flex;align-items:center;gap:5px;padding:5px 11px;border:1px solid rgba(255,255,255,.06);border-radius:20px;background:rgba(255,255,255,.015);transition:all .25s;cursor:pointer}
+.p-chip:hover{background:rgba(255,255,255,.04)}
+.p-icon{font-size:11px;color:rgba(232,220,200,.45)}
+.p-label{font-size:11px;letter-spacing:.04em;color:rgba(232,220,200,.45);font-variant:small-caps}
+.p-count{background:rgba(255,255,255,.07);border-radius:10px;padding:0 6px;font-size:10px;color:rgba(232,220,200,.42);min-width:18px;text-align:center}
+
+/* ── HISTORY SHEET ── */
+.hist-overlay{position:absolute;inset:0;background:rgba(0,0,0,0);pointer-events:none;z-index:50;transition:background .3s}
+.hist-overlay.open{background:rgba(0,0,0,.65);pointer-events:all}
+.hist-sheet{position:absolute;bottom:0;left:0;right:0;background:#0c1118;border:1px solid rgba(201,168,76,.16);border-radius:16px 16px 0 0;max-height:75vh;transform:translateY(110%);transition:transform .32s cubic-bezier(.34,1.2,.64,1);z-index:100;display:flex;flex-direction:column;overflow:hidden}
+.hist-sheet.open{transform:translateY(0)}
+.hist-handle{width:36px;height:3px;background:rgba(201,168,76,.22);border-radius:2px;margin:10px auto 0;flex-shrink:0}
+.hist-header{display:flex;align-items:center;justify-content:space-between;padding:13px 18px 9px;border-bottom:1px solid rgba(201,168,76,.09);flex-shrink:0}
+.hist-title{font-size:14px;font-weight:700;font-variant:small-caps;letter-spacing:.1em;color:#c9a84c}
+.close-btn{background:none;border:none;color:rgba(232,220,200,.42);cursor:pointer;font-size:18px;padding:4px;transition:color .15s;font-family:inherit}
+.close-btn:hover{color:#e8dcc8}
+.hist-tabs{display:flex;border-bottom:1px solid rgba(201,168,76,.07);padding:0 10px;flex-shrink:0;overflow-x:auto}
+.hist-tab{padding:8px 13px;background:none;border:none;border-bottom:2px solid transparent;color:rgba(232,220,200,.32);font-family:inherit;font-size:12px;font-weight:700;cursor:pointer;transition:all .18s;letter-spacing:.04em;font-variant:small-caps;margin-bottom:-1px;white-space:nowrap;-webkit-tap-highlight-color:transparent}
+.hist-list{overflow-y:auto;flex:1;padding:10px 12px}
+.hist-empty{text-align:center;color:rgba(232,220,200,.24);padding:28px;font-style:italic;font-size:14px}
+.hist-tap-hint{font-size:10px;color:rgba(232,220,200,.18);text-align:center;padding:0 0 6px;font-style:italic}
+.hist-entry{display:flex;align-items:center;justify-content:space-between;padding:9px 10px;border:1px solid rgba(255,255,255,.04);border-radius:6px;margin-bottom:7px;background:rgba(255,255,255,.014);gap:10px;cursor:pointer;transition:background .18s,border-color .18s}
+.hist-entry:hover{background:rgba(255,255,255,.03);border-color:rgba(201,168,76,.13)}
+.hist-entry:active{background:rgba(201,168,76,.07)}
+.hist-left{display:flex;align-items:center;gap:10px;flex:1;min-width:0}
+.hist-mana{font-size:14px;font-weight:700;color:#c9a84c;min-width:30px;text-align:center;flex-shrink:0}
+.hist-name{font-size:13px;color:#e8dcc8;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.hist-turn{font-size:11px;color:rgba(232,220,200,.28);margin-top:2px}
+.hist-thumb{width:40px;height:55px;object-fit:cover;object-position:top;border-radius:3px;flex-shrink:0}
+.hist-list::-webkit-scrollbar{width:3px}
+.hist-list::-webkit-scrollbar-thumb{background:rgba(201,168,76,.18);border-radius:2px}
+
+/* ── INFO MODAL ── */
+.info-overlay{position:fixed;inset:0;background:rgba(0,0,0,.78);z-index:300;display:flex;align-items:flex-end;animation:fadeIn .22s ease}
+.info-sheet{background:#0c1118;border:1px solid rgba(201,168,76,.18);border-radius:20px 20px 0 0;max-height:90vh;width:100%;max-width:480px;margin:0 auto;display:flex;flex-direction:column;overflow:hidden;animation:slideUp .32s cubic-bezier(.34,1.2,.64,1)}
+.info-handle{width:36px;height:3px;background:rgba(201,168,76,.22);border-radius:2px;margin:10px auto 0;flex-shrink:0}
+.info-header{display:flex;align-items:center;justify-content:space-between;padding:13px 18px 11px;border-bottom:1px solid rgba(201,168,76,.1);flex-shrink:0}
+.info-title{font-size:15px;font-weight:700;font-variant:small-caps;letter-spacing:.1em;color:#c9a84c}
+.info-body{overflow-y:auto;flex:1;padding:20px 20px 40px}
+.info-sect{margin-bottom:22px}
+.info-sect-head{display:flex;align-items:center;gap:9px;margin-bottom:10px}
+.info-sect-icon{font-size:16px;flex-shrink:0}
+.info-sect-title{font-size:12px;font-weight:700;color:#c9a84c;letter-spacing:.12em;text-transform:uppercase}
+.info-text{font-size:14px;line-height:1.75;color:rgba(232,220,200,.62)}
+.info-divider{border:none;border-top:1px solid rgba(201,168,76,.08);margin:18px 0}
+.info-rule{display:flex;gap:11px;margin-bottom:8px;padding:9px 12px;background:rgba(255,255,255,.02);border-radius:5px;border:1px solid rgba(255,255,255,.04)}
+.info-rule-num{font-size:11px;font-weight:700;color:#c9a84c;min-width:16px;padding-top:2px;flex-shrink:0}
+.info-rule-text{font-size:13px;line-height:1.62;color:rgba(232,220,200,.6)}
+.info-rule-text b{color:#e0d0b0;font-weight:700}
+.info-tip{background:rgba(201,168,76,.055);border:1px solid rgba(201,168,76,.13);border-radius:6px;padding:12px 14px;font-size:13px;font-style:italic;color:rgba(232,220,200,.48);line-height:1.68;margin-top:8px}
+.info-badge{display:inline-block;background:rgba(201,168,76,.1);border:1px solid rgba(201,168,76,.2);color:#c9a84c;border-radius:3px;padding:1px 7px;font-size:11px;font-weight:700;letter-spacing:.06em;margin-right:4px;vertical-align:middle}
+
+/* ── CARD ZOOM MODAL ── */
+.zoom-overlay{position:fixed;inset:0;background:rgba(0,0,0,.92);z-index:600;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px;animation:fadeIn .18s ease;overflow-y:auto}
+.zoom-close{position:fixed;top:16px;right:16px;width:42px;height:42px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);border-radius:50%;color:rgba(232,220,200,.7);font-size:19px;cursor:pointer;display:flex;align-items:center;justify-content:center;font-family:inherit;transition:all .18s;z-index:10}
+.zoom-close:hover{background:rgba(255,255,255,.12);color:#e8dcc8}
+.zoom-img{max-width:min(290px,88vw);border-radius:14px;display:block;box-shadow:0 24px 80px rgba(0,0,0,.95),0 0 50px rgba(201,168,76,.12);animation:zoomIn .38s cubic-bezier(.34,1.4,.64,1)}
+.zoom-info{text-align:center;margin-top:16px;animation:fadeUp .35s ease .12s both;max-width:290px}
+.zoom-name{font-size:19px;font-weight:700;font-variant:small-caps;color:#c9a84c;letter-spacing:.05em;margin-bottom:4px}
+.zoom-type{font-size:13px;color:rgba(232,220,200,.4);font-style:italic;margin-bottom:7px}
+.zoom-pt{font-size:26px;font-weight:700;color:#e8dcc8;margin-bottom:4px}
+.zoom-set{font-size:10px;color:rgba(232,220,200,.2);letter-spacing:.12em;text-transform:uppercase;margin-top:3px}
+.zoom-no-img{padding:40px 28px;border:1px solid rgba(201,168,76,.2);border-radius:14px;text-align:center;background:rgba(201,168,76,.04);max-width:280px;width:100%;animation:zoomIn .38s cubic-bezier(.34,1.4,.64,1)}
+.zoom-no-name{font-size:22px;font-weight:700;color:#c9a84c;margin-bottom:8px;font-variant:small-caps}
+.zoom-no-type{font-size:14px;color:rgba(232,220,200,.42);font-style:italic}
+
+/* ── SPINNER ── */
+.spin{display:inline-block;animation:spin 1s linear infinite}
+
+/* ── ANIMATIONS ── */
+@keyframes goldPulse{0%,100%{opacity:.9;text-shadow:0 0 20px rgba(201,168,76,.4)}50%{opacity:1;text-shadow:0 0 30px rgba(201,168,76,.7),0 0 50px rgba(201,168,76,.2)}}
+@keyframes cardReveal{0%{opacity:0;transform:perspective(700px) rotateY(35deg) scale(.88)}55%{opacity:1;transform:perspective(700px) rotateY(-4deg) scale(1.02)}100%{opacity:1;transform:perspective(700px) rotateY(0) scale(1)}}
+@keyframes glowPulse{0%,100%{opacity:.5}50%{opacity:1}}
+@keyframes fadeUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+@keyframes slideUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
+@keyframes zoomIn{from{opacity:0;transform:scale(.78)}to{opacity:1;transform:scale(1)}}
+@keyframes spin{to{transform:rotate(360deg)}}
+button{-webkit-tap-highlight-color:transparent;touch-action:manipulation}
+</style>
+</head>
+<body>
+<div id="app"></div>
+
+<script>
+const COLORS=['#c9a84c','#42a5f5','#ef5350','#66bb6a'];
+const ICONS=['◆','◇','○','□'];
+
+const state={
+  screen:'setup',numPlayers:2,curPlayer:0,mana:1,card:null,
+  loading:false,error:null,history:[],showHist:false,
+  histTab:0,turn:1,phase:'select',seen:{},
+  showInfo:false,zoomCard:null
+};
+
+/* ── UTILITIES ── */
+function getImg(card){
+  if(!card)return null;
+  const u=card.image_uris||(card.card_faces&&card.card_faces[0]&&card.card_faces[0].image_uris);
+  return(u&&(u.large||u.normal))||null;
+}
+
+function el(tag,attrs,...children){
+  const e=document.createElement(tag);
+  if(attrs)Object.entries(attrs).forEach(([k,v])=>{
+    if(k==='className')e.className=v;
+    else if(k==='style')Object.assign(e.style,v);
+    else if(k.startsWith('on'))e.addEventListener(k.slice(2).toLowerCase(),v);
+    else if(k==='disabled')e.disabled=v;
+    else if(v!=null)e.setAttribute(k,v);
+  });
+  children.flat(Infinity).forEach(c=>{
+    if(c==null||c===false)return;
+    e.appendChild(typeof c==='string'?document.createTextNode(c):c);
+  });
+  return e;
+}
+
+function vib(p){try{if(navigator.vibrate)navigator.vibrate(p);}catch(e){}}
+
+function triggerFlash(color){
+  const old=document.getElementById('fx-flash');if(old)old.remove();
+  const d=document.createElement('div');
+  d.id='fx-flash';
+  d.style.cssText=`position:fixed;inset:0;pointer-events:none;z-index:700;background:${color};opacity:.3;transition:none`;
+  document.body.appendChild(d);
+  requestAnimationFrame(()=>requestAnimationFrame(()=>{
+    d.style.transition='opacity .85s ease';d.style.opacity='0';
+    setTimeout(()=>d.remove(),1000);
+  }));
+}
+
+function showTurnBanner(idx){
+  const old=document.getElementById('fx-banner');if(old)old.remove();
+  const color=COLORS[idx];
+  const d=document.createElement('div');
+  d.id='fx-banner';
+  d.style.cssText=`position:fixed;top:50%;left:50%;transform:translate(-50%,-50%) scale(.72);opacity:0;z-index:800;pointer-events:none;text-align:center;padding:22px 42px;border-radius:8px;background:rgba(7,9,12,.96);border:2px solid ${color};box-shadow:0 0 55px ${color}44,0 22px 70px rgba(0,0,0,.85);transition:all .38s cubic-bezier(.34,1.56,.64,1);font-family:'Palatino Linotype',Palatino,Georgia,serif`;
+  d.innerHTML=`<div style="font-size:10px;letter-spacing:.28em;color:${color}70;text-transform:uppercase;margin-bottom:9px">New Turn</div><div style="font-size:27px;font-weight:700;color:${color};font-variant:small-caps;letter-spacing:.1em">${ICONS[idx]} Player ${idx+1}</div>`;
+  document.body.appendChild(d);
+  requestAnimationFrame(()=>requestAnimationFrame(()=>{
+    d.style.transform='translate(-50%,-50%) scale(1)';d.style.opacity='1';
+  }));
+  setTimeout(()=>{
+    d.style.transition='all .32s ease';
+    d.style.opacity='0';d.style.transform='translate(-50%,-50%) scale(1.06)';
+    setTimeout(()=>d.remove(),250);
+  },600);
+}
+
+/* ── RENDER ── */
+function render(){
+  const app=document.getElementById('app');
+  app.innerHTML='';app.className='';
+  if(state.screen==='setup'){
+    const frag=document.createDocumentFragment();
+    frag.appendChild(renderSetup());
+    if(state.showInfo)frag.appendChild(renderInfoModal());
+    app.appendChild(frag);
+  }else{
+    app.className='in-game';
+    const frag=renderGame();
+    if(state.zoomCard)frag.appendChild(renderZoomModal());
+    app.appendChild(frag);
+  }
+}
+
+/* ── SETUP SCREEN ── */
+function renderSetup(){
+  return el('div',{className:'setup-screen'},
+    el('div',{className:'setup-card'},
+      el('button',{className:'info-btn',title:'How to play?',onClick:()=>{state.showInfo=true;render();}},'?'),
+      el('span',{className:'logo-hex'},'⬡'),
+      el('h1',{className:'title-main'},'Momir'),
+      el('p',{className:'title-sub'},'Magic: The Gathering · Basic Mode'),
+      el('p',{className:'section-label'},'Number of players'),
+      el('div',{className:'player-btns'},
+        ...[2,3,4].map(n=>el('button',{className:`player-btn${state.numPlayers===n?' active':''}`,onClick:()=>{state.numPlayers=n;render();}},String(n)))
+      ),
+      el('button',{className:'start-btn',onClick:startGame},'⚔  Start Game'),
+      el('p',{className:'flavor-text'},'"From chaos, the creature emerges."')
+    )
+  );
+}
+
+/* ── INFO MODAL ── */
+function renderInfoModal(){
+  function makeRule(num,inner){
+    const r=el('div',{className:'info-rule'},
+      el('span',{className:'info-rule-num'},String(num)+'.')
+    );
+    const txt=document.createElement('span');
+    txt.className='info-rule-text';txt.innerHTML=inner;
+    r.appendChild(txt);return r;
+  }
+  function makeSect(icon,title,...kids){
+    return el('div',{className:'info-sect'},
+      el('div',{className:'info-sect-head'},
+        el('span',{className:'info-sect-icon'},icon),
+        el('span',{className:'info-sect-title'},title)),
+      ...kids
+    );
+  }
+
+const costes=document.createElement('p');
+costes.className='info-text';
+costes.innerHTML=`<span class="info-badge">1–3</span> Weak creatures — useful in the early game.<br><br><span class="info-badge">4–6</span> The sweet spot: balanced power and availability.<br><br><span class="info-badge">7–9</span> Huge creatures, but less reliable.<br><br><span class="info-badge">10+</span> Devastating or empty — some costs have no creatures.`;
+
+const body=el('div',{className:'info-body'},
+  makeSect('⬡','What is Momir mode?',
+    el('p',{className:'info-text'},'Momir Basic is a Magic: The Gathering format originally created for Magic Online. No decks or hands are used—each turn, the active player chooses how much mana to spend and receives a completely random real Magic creature with that cost.')
+  ),
+  el('hr',{className:'info-divider'}),
+  makeSect('⚡','How to play?',
+    el('p',{className:'info-text'},'The game progresses turn by turn between players. Each turn, choose a mana cost, summon a random creature, and decide whether to reroll or pass to the next player.'),
+    el('div',{className:'info-tip'},'Only creatures printed in paper Magic are included. Digital-only cards, joke sets (Un-sets), and tokens are excluded.')
+  ),
+  el('hr',{className:'info-divider'}),
+  makeSect('📜','Turn flow',
+    makeRule(1,'Use <b>+</b> and <b>−</b> to select the mana cost.'),
+    makeRule(2,'Press <b>Summon Creature</b> to generate a random card.'),
+    makeRule(3,'Use <b>New Creature</b> if you want to reroll with the same cost.'),
+    makeRule(4,'Press <b>Next Turn</b> when you are done.'),
+    makeRule(5,'In the <b>history</b>, tap any card to view it in full size.')
+  ),
+  el('hr',{className:'info-divider'}),
+  makeSect('🎯','Cost guide',costes)
+);
+
+return el('div',{className:'info-overlay',onClick:()=>{state.showInfo=false;render();}},
+  el('div',{className:'info-sheet',onClick:e=>e.stopPropagation()},
+    el('div',{className:'info-handle'}),
+    el('div',{className:'info-header'},
+      el('h2',{className:'info-title'},'⬡  Momir Basic Mode'),
+      el('button',{className:'close-btn',onClick:()=>{state.showInfo=false;render();}},'✕')
+    ),
+    body
+  )
+);
+}
+
+/* ── GAME ── */
+function renderGame(){
+  const color=COLORS[state.curPlayer];
+  const frag=document.createDocumentFragment();
+  frag.appendChild(el('div',{className:`hist-overlay${state.showHist?' open':''}`,onClick:()=>{state.showHist=false;render();}}));
+  frag.appendChild(renderHistSheet());
+  frag.appendChild(el('div',{className:'game'},renderTopBar(color),renderMain(color),renderPlayersStrip()));
+  return frag;
+}
+
+function renderTopBar(color){
+  return el('div',{className:'top-bar'},
+    el('button',{className:'icon-btn',title:'Back to menu',onClick:()=>{state.screen='setup';render();}},'↩'),
+    el('div',{className:'turn-info'},
+      el('span',{className:'turn-lbl'},`Turn ${state.turn}`),
+      el('span',{className:'player-badge',style:{color,borderColor:color}},`${ICONS[state.curPlayer]} Player ${state.curPlayer+1}`)
+    ),
+    el('button',{className:'icon-btn',title:'View history',onClick:()=>{state.histTab=state.curPlayer;state.showHist=true;render();}},'📜')
+  );
+}
+
+function renderMain(color){
+  const main=el('div',{className:'main'});
+  if(state.phase==='select')main.appendChild(renderSelectPhase(color));
+  else if(state.phase==='revealed'&&state.card)main.appendChild(renderRevealPhase(color));
+  return main;
+}
+
+function renderSelectPhase(color){
+  const errorBox=el('div',{className:`error-box${state.error?' show':''}`},state.error||'');
+  const invokeBtn=el('button',{
+    className:'invoke-btn',style:{borderColor:color,color,background:`${color}18`},
+    disabled:state.loading,onClick:summon
+  },state.loading?el('span',{},[el('span',{className:'spin'},'⟳'),' Summoning...']):'⚡  Summon Creature');
+  const manaInput=el('input',{type:'number',min:'1',id:'mana-val',style:{color}});
+  manaInput.value=String(state.mana);
+  manaInput.addEventListener('input',e=>{const v=parseInt(e.target.value);if(!isNaN(v)&&v>=1)state.mana=v;});
+  manaInput.addEventListener('change',e=>{const v=parseInt(e.target.value);if(!isNaN(v)&&v>=1)state.mana=v;else e.target.value=String(state.mana);});
+  return el('div',{className:'select-phase'},
+    el('p',{className:'phase-lbl'},'Mana Cost'),
+    el('div',{className:'mana-row'},
+      el('button',{className:'mana-btn',onClick:()=>{state.mana=Math.max(1,state.mana-1);render();}},'−'),
+      el('div',{className:'mana-display'},manaInput,el('span',{className:'mana-sub'},'mana')),
+      el('button',{className:'mana-btn',onClick:()=>{state.mana=state.mana+1;render();}},'+')),
+    invokeBtn,errorBox
+  );
+}
+
+function renderRevealPhase(color){
+  const card=state.card;const imgUrl=getImg(card);
+  let cardVis;
+  if(imgUrl){
+    cardVis=el('div',{className:'card-frame'},
+      el('img',{className:'card-img',src:imgUrl,alt:card.name}),
+      el('div',{className:'card-glow',style:{boxShadow:`0 0 35px ${color}77,0 0 70px ${color}33`}})
+    );
+  }else{
+    cardVis=el('div',{className:'card-text-frame'},
+      el('p',{className:'ctf-name'},card.name),el('p',{className:'ctf-type'},card.type_line));
+  }
+  return el('div',{className:'reveal-phase'},
+    cardVis,
+    el('div',{className:'card-info'},
+      el('h3',{className:'card-name-el'},card.name),
+      el('p',{className:'card-type-el'},card.type_line),
+      ...(card.power!=null?[el('p',{className:'card-pt',style:{color}},`${card.power} / ${card.toughness}`)]:[])
+    ),
+    el('div',{className:'action-row'},
+      el('button',{className:'action-btn secondary',onClick:()=>{state.card=null;state.phase='select';state.error=null;render();}},'🔄 New Creature'),
+      el('button',{className:'action-btn primary',style:{borderColor:color,color},onClick:nextTurn},'➤ Next Turn')
+    )
+  );
+}
+
+function renderPlayersStrip(){
+  return el('div',{className:'players-strip'},
+    ...Array.from({length:state.numPlayers},(_,i)=>{
+      const isActive=state.curPlayer===i;
+      return el('div',{
+        className:`p-chip${isActive?' active':''}`,
+        style:isActive?{borderColor:COLORS[i],background:`${COLORS[i]}18`}:{},
+        onClick:()=>{state.histTab=i;state.showHist=true;render();}
+      },
+        el('span',{className:'p-icon'},ICONS[i]),
+        el('span',{className:'p-label'},`P${i+1}`),
+        el('span',{className:'p-count'},String(state.history.filter(e=>e.player===i).length))
+      );
+    })
+  );
+}
+
+function renderHistSheet(){
+  const entries=state.history.filter(e=>e.player===state.histTab).reverse();
+  const tabs=Array.from({length:state.numPlayers},(_,i)=>{
+    const isActive=state.histTab===i;
+    return el('button',{
+      className:`hist-tab${isActive?' active':''}`,
+      style:isActive?{borderBottomColor:COLORS[i],color:COLORS[i]}:{},
+      onClick:ev=>{ev.stopPropagation();state.histTab=i;render();}
+    },`${ICONS[i]} Player ${i+1}`);
+  });
+  let listContent;
+  if(entries.length===0){
+    listContent=[el('p',{className:'hist-empty'},'No actions yet.')];
+  }else{
+    listContent=[
+      el('p',{className:'hist-tap-hint'},'Tap an entry to view the card in full size'),
+      ...entries.map(entry=>{
+        const thumb=getImg(entry.card);
+        const row=el('div',{className:'hist-entry'},
+          el('div',{className:'hist-left'},
+            el('span',{className:'hist-mana'},`${entry.mana}◆`),
+            el('div',{},
+              el('div',{className:'hist-name'},entry.card.name),
+              el('div',{className:'hist-turn'},`Turn ${entry.turn}`)
+            )
+          ),
+          ...(thumb?[el('img',{className:'hist-thumb',src:thumb,alt:entry.card.name,loading:'lazy'})]:[])
+        );
+        row.addEventListener('click',ev=>{ev.stopPropagation();state.zoomCard=entry.card;render();});
+        return row;
+      })
+    ];
+  }
+  return el('div',{className:`hist-sheet${state.showHist?' open':''}`,onClick:e=>e.stopPropagation()},
+    el('div',{className:'hist-handle'}),
+    el('div',{className:'hist-header'},
+      el('h2',{className:'hist-title'},'◆  Game History'),
+      el('button',{className:'close-btn',onClick:()=>{state.showHist=false;render();}},'✕')
+    ),
+    el('div',{className:'hist-tabs'},...tabs),
+    el('div',{className:'hist-list'},...listContent)
+  );
+}
+
+/* ── ZOOM MODAL ── */
+function renderZoomModal(){
+  const card=state.zoomCard;
+  const imgUrl=getImg(card);
+  const close=()=>{state.zoomCard=null;render();};
+  const inner=el('div',{style:{display:'flex',flexDirection:'column',alignItems:'center'},onClick:e=>e.stopPropagation()},
+    imgUrl
+      ?el('img',{className:'zoom-img',src:imgUrl,alt:card.name})
+      :el('div',{className:'zoom-no-img'},el('p',{className:'zoom-no-name'},card.name),el('p',{className:'zoom-no-type'},card.type_line)),
+    el('div',{className:'zoom-info'},
+      el('h3',{className:'zoom-name'},card.name),
+      el('p',{className:'zoom-type'},card.type_line),
+      ...(card.power!=null?[el('p',{className:'zoom-pt'},`${card.power} / ${card.toughness}`)]:[]),
+      ...(card.set_name?[el('p',{className:'zoom-set'},card.set_name)]:[])
+    )
+  );
+  return el('div',{className:'zoom-overlay',onClick:close},
+    el('button',{className:'zoom-close',onClick:close},'✕'),
+    inner
+  );
+}
+
+/* ── ACTIONS ── */
+function startGame(){
+  Object.assign(state,{screen:'game',curPlayer:0,mana:1,card:null,history:[],
+    turn:1,phase:'select',error:null,seen:{},zoomCard:null,showHist:false});
+  render();
+}
+
+async function summon(){
+  if(state.loading)return;
+  
+  // Sincronizar el mana si el usuario escribió en el input
+  const inp = document.getElementById('mana-val');
+  if(inp){
+    const v = parseInt(inp.value);
+    if(!isNaN(v) && v >= 1) state.mana = v;
+  }
+  
+  state.loading = true;
+  state.error = null;
+  render();
+  vib([25, 15, 45]); // Mantener la vibración si te gusta
+
+  // Memoria: Excluir las últimas 6 cartas vistas para este coste
+  const seenList = state.seen[state.mana] || [];
+  const excl = seenList.slice(-6).map(id => ` -id:${id}`).join('');
+  
+  // Construcción del Query para el endpoint /random
+  const q = encodeURIComponent(`t:creature game:paper -is:digital -is:funny -is:token -name:^A- cmc:${state.mana}${excl}`);
+  
+  try {
+    // CAMBIO CLAVE: Uso del endpoint "random" en lugar de "search"
+    const res = await fetch(`https://api.scryfall.com/cards/random?q=${q}`);
+    
+    if(res.status === 404){
+      state.error = `No paper creatures found with mana cost ${state.mana}.`;
+      state.loading = false; render(); return;
+    }
+    
+    if(!res.ok) throw new Error();
+    
+    const data = await res.json();
+    
+    // Guardar en el historial de "vistas" para evitar repeticiones
+    if(!state.seen[state.mana]) state.seen[state.mana] = [];
+    state.seen[state.mana].push(data.id);
+    
+    // Actualizar el estado del juego
+    state.card = data;
+    state.history.push({
+      player: state.curPlayer,
+      mana: state.mana,
+      card: data,
+      turn: state.turn
+    });
+    
+    state.phase = 'revealed';
+    triggerFlash(COLORS[state.curPlayer]); // Efecto visual opcional
+
+  } catch(e) {
+    state.error = 'Connection error with Scryfall. Please try again.';
+  } finally {
+    state.loading = false;
+    render();
+  }
+}
+
+function nextTurn(){
+  const next=(state.curPlayer+1)%state.numPlayers;
+  state.curPlayer=next;
+  if(next===0)state.turn++;
+  state.card=null;state.error=null;state.phase='select';state.mana=1;
+  vib([40,20,40]);
+  showTurnBanner(next);
+  render();
+}
+
+render();
+</script>
+</body>
+</html>
