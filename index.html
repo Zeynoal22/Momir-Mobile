@@ -35,6 +35,7 @@ body{font-family:'Palatino Linotype',Palatino,Georgia,serif;color:#e8dcc8;-webki
 .top-bar{display:flex;align-items:center;justify-content:space-between;padding:10px 14px;border-bottom:1px solid rgba(201,168,76,.1);background:rgba(0,0,0,.25);flex-shrink:0}
 .icon-btn{width:38px;height:38px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.07);color:rgba(232,220,200,.55);border-radius:4px;cursor:pointer;font-size:17px;display:flex;align-items:center;justify-content:center;transition:all .18s}
 .icon-btn:hover{background:rgba(201,168,76,.1);border-color:rgba(201,168,76,.22);color:#c9a84c}
+.top-bar-right{display:flex;gap:6px}
 .turn-info{display:flex;flex-direction:column;align-items:center;gap:3px}
 .turn-lbl{font-size:10px;letter-spacing:.2em;color:rgba(232,220,200,.32);text-transform:uppercase}
 .player-badge{font-size:12px;font-weight:700;letter-spacing:.08em;padding:3px 13px;border:1px solid;border-radius:2px;font-variant:small-caps}
@@ -54,6 +55,10 @@ body{font-family:'Palatino Linotype',Palatino,Georgia,serif;color:#e8dcc8;-webki
 .invoke-btn{width:100%;padding:14px 20px;border:1px solid;background:transparent;font-family:inherit;font-size:13px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;border-radius:4px;cursor:pointer;transition:all .22s}
 .invoke-btn:hover:not(:disabled){filter:brightness(1.22)}
 .invoke-btn:disabled{opacity:.52;cursor:wait}
+/* NEW: Pass turn button */
+.pass-btn{width:100%;padding:10px 20px;border:1px solid rgba(232,220,200,.1);background:transparent;color:rgba(232,220,200,.32);font-family:inherit;font-size:11px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;border-radius:4px;cursor:pointer;transition:all .22s}
+.pass-btn:hover:not(:disabled){border-color:rgba(232,220,200,.22);color:rgba(232,220,200,.55);background:rgba(255,255,255,.03)}
+.pass-btn:disabled{opacity:.3;cursor:wait}
 .error-box{background:rgba(198,40,40,.1);border:1px solid rgba(198,40,40,.32);color:#ff8a80;padding:12px 16px;border-radius:4px;font-size:14px;text-align:center;width:100%;display:none}
 .error-box.show{display:block}
 
@@ -130,19 +135,49 @@ body{font-family:'Palatino Linotype',Palatino,Georgia,serif;color:#e8dcc8;-webki
 .info-tip{background:rgba(201,168,76,.055);border:1px solid rgba(201,168,76,.13);border-radius:6px;padding:12px 14px;font-size:13px;font-style:italic;color:rgba(232,220,200,.48);line-height:1.68;margin-top:8px}
 .info-badge{display:inline-block;background:rgba(201,168,76,.1);border:1px solid rgba(201,168,76,.2);color:#c9a84c;border-radius:3px;padding:1px 7px;font-size:11px;font-weight:700;letter-spacing:.06em;margin-right:4px;vertical-align:middle}
 
-/* ── CARD ZOOM MODAL ── */
-.zoom-overlay{position:fixed;inset:0;background:rgba(0,0,0,.92);z-index:600;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px;animation:fadeIn .18s ease;overflow-y:auto}
-.zoom-close{position:fixed;top:16px;right:16px;width:42px;height:42px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);border-radius:50%;color:rgba(232,220,200,.7);font-size:19px;cursor:pointer;display:flex;align-items:center;justify-content:center;font-family:inherit;transition:all .18s;z-index:10}
+/* ── NEW: CARD ZOOM MODAL ── */
+.zoom-overlay{position:fixed;inset:0;background:rgba(0,0,0,.93);z-index:600;display:flex;flex-direction:column;align-items:center;padding:52px 20px 32px;animation:fadeIn .18s ease;overflow-y:auto}
+.zoom-close{position:fixed;top:14px;right:14px;width:40px;height:40px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);border-radius:50%;color:rgba(232,220,200,.7);font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;font-family:inherit;transition:all .18s;z-index:10}
 .zoom-close:hover{background:rgba(255,255,255,.12);color:#e8dcc8}
-.zoom-img{max-width:min(290px,88vw);border-radius:14px;display:block;box-shadow:0 24px 80px rgba(0,0,0,.95),0 0 50px rgba(201,168,76,.12);animation:zoomIn .38s cubic-bezier(.34,1.4,.64,1)}
-.zoom-info{text-align:center;margin-top:16px;animation:fadeUp .35s ease .12s both;max-width:290px}
-.zoom-name{font-size:19px;font-weight:700;font-variant:small-caps;color:#c9a84c;letter-spacing:.05em;margin-bottom:4px}
-.zoom-type{font-size:13px;color:rgba(232,220,200,.4);font-style:italic;margin-bottom:7px}
-.zoom-pt{font-size:26px;font-weight:700;color:#e8dcc8;margin-bottom:4px}
-.zoom-set{font-size:10px;color:rgba(232,220,200,.2);letter-spacing:.12em;text-transform:uppercase;margin-top:3px}
-.zoom-no-img{padding:40px 28px;border:1px solid rgba(201,168,76,.2);border-radius:14px;text-align:center;background:rgba(201,168,76,.04);max-width:280px;width:100%;animation:zoomIn .38s cubic-bezier(.34,1.4,.64,1)}
-.zoom-no-name{font-size:22px;font-weight:700;color:#c9a84c;margin-bottom:8px;font-variant:small-caps}
+.zoom-card-wrap{display:flex;flex-direction:column;align-items:center;width:100%;max-width:300px;animation:zoomIn .38s cubic-bezier(.34,1.4,.64,1)}
+.zoom-img{width:100%;border-radius:14px;display:block;box-shadow:0 24px 80px rgba(0,0,0,.95),0 0 50px rgba(201,168,76,.12)}
+.zoom-flip-btn{margin-top:10px;padding:7px 18px;border:1px solid rgba(201,168,76,.3);background:rgba(201,168,76,.07);color:#c9a84c;font-family:inherit;font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;border-radius:4px;cursor:pointer;transition:all .18s}
+.zoom-flip-btn:hover{background:rgba(201,168,76,.14);border-color:rgba(201,168,76,.5)}
+.zoom-no-img{padding:36px 24px;border:1px solid rgba(201,168,76,.2);border-radius:14px;text-align:center;background:rgba(201,168,76,.04);width:100%;max-width:300px;animation:zoomIn .38s cubic-bezier(.34,1.4,.64,1)}
+.zoom-no-name{font-size:20px;font-weight:700;color:#c9a84c;margin-bottom:8px;font-variant:small-caps}
 .zoom-no-type{font-size:14px;color:rgba(232,220,200,.42);font-style:italic}
+.zoom-info{width:100%;max-width:300px;margin-top:14px;animation:fadeUp .35s ease .12s both}
+.zoom-name{font-size:18px;font-weight:700;font-variant:small-caps;color:#c9a84c;letter-spacing:.05em;margin-bottom:3px}
+.zoom-type{font-size:12px;color:rgba(232,220,200,.38);font-style:italic;margin-bottom:8px}
+.zoom-pt{font-size:22px;font-weight:700;color:#e8dcc8;margin-bottom:10px}
+.zoom-oracle{font-size:13px;line-height:1.7;color:rgba(232,220,200,.58);border-top:1px solid rgba(201,168,76,.1);padding-top:10px;white-space:pre-wrap;margin-bottom:4px}
+.zoom-oracle em{font-style:italic;color:rgba(232,220,200,.32)}
+.zoom-set{font-size:10px;color:rgba(232,220,200,.18);letter-spacing:.12em;text-transform:uppercase;margin-top:8px}
+
+/* ── NEW: LIFE COUNTERS ── */
+.life-strip{display:flex;justify-content:center;gap:6px;padding:7px 14px;border-bottom:1px solid rgba(255,255,255,.04);background:rgba(0,0,0,.18);flex-shrink:0}
+.life-chip{display:flex;align-items:center;gap:6px;padding:4px 9px;border:1px solid rgba(255,255,255,.06);border-radius:20px;background:rgba(255,255,255,.015);transition:border-color .25s,background .25s}
+.life-chip.active-player{border-width:1px}
+.life-icon{font-size:10px}
+.life-lbl{font-size:10px;letter-spacing:.04em;font-variant:small-caps;color:rgba(232,220,200,.35)}
+.life-controls{display:flex;align-items:center;gap:3px}
+.life-adj{width:20px;height:20px;border-radius:50%;border:1px solid rgba(255,255,255,.08);background:rgba(255,255,255,.03);color:rgba(232,220,200,.5);cursor:pointer;font-size:14px;display:flex;align-items:center;justify-content:center;transition:all .15s;font-family:inherit;padding:0;line-height:1}
+.life-adj:hover{background:rgba(255,255,255,.08);color:#e8dcc8}
+.life-val{font-size:15px;font-weight:700;min-width:24px;text-align:center;transition:color .2s}
+.life-val.low{color:#ef9a9a}
+.life-val.critical{color:#ef5350;animation:heartbeat 1s ease-in-out infinite}
+
+/* ── NEW: CONFIRM MODAL ── */
+.confirm-overlay{position:fixed;inset:0;background:rgba(0,0,0,.72);z-index:500;display:flex;align-items:center;justify-content:center;padding:24px;animation:fadeIn .18s ease}
+.confirm-box{background:#0e1420;border:1px solid rgba(201,168,76,.2);border-radius:8px;padding:28px 24px;max-width:280px;width:100%;text-align:center;animation:zoomIn .28s cubic-bezier(.34,1.4,.64,1)}
+.confirm-title{font-size:16px;font-weight:700;color:#c9a84c;font-variant:small-caps;letter-spacing:.08em;margin-bottom:8px}
+.confirm-text{font-size:13px;color:rgba(232,220,200,.48);line-height:1.6;margin-bottom:20px}
+.confirm-btns{display:flex;gap:10px}
+.confirm-btn{flex:1;padding:11px 8px;border-radius:4px;cursor:pointer;font-family:inherit;font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;transition:all .18s}
+.confirm-btn.cancel{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.07);color:rgba(232,220,200,.55)}
+.confirm-btn.cancel:hover{background:rgba(255,255,255,.06)}
+.confirm-btn.danger{background:rgba(198,40,40,.1);border:1px solid rgba(198,40,40,.3);color:#ff8a80}
+.confirm-btn.danger:hover{background:rgba(198,40,40,.18)}
 
 /* ── SPINNER ── */
 .spin{display:inline-block;animation:spin 1s linear infinite}
@@ -156,6 +191,7 @@ body{font-family:'Palatino Linotype',Palatino,Georgia,serif;color:#e8dcc8;-webki
 @keyframes slideUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
 @keyframes zoomIn{from{opacity:0;transform:scale(.78)}to{opacity:1;transform:scale(1)}}
 @keyframes spin{to{transform:rotate(360deg)}}
+@keyframes heartbeat{0%,100%{transform:scale(1)}50%{transform:scale(1.14)}}
 button{-webkit-tap-highlight-color:transparent;touch-action:manipulation}
 </style>
 </head>
@@ -165,19 +201,55 @@ button{-webkit-tap-highlight-color:transparent;touch-action:manipulation}
 <script>
 const COLORS=['#c9a84c','#42a5f5','#ef5350','#66bb6a'];
 const ICONS=['◆','◇','○','□'];
+const STARTING_LIFE=20;
 
 const state={
-  screen:'setup',numPlayers:2,curPlayer:0,mana:1,card:null,
-  loading:false,error:null,history:[],showHist:false,
-  histTab:0,turn:1,phase:'select',seen:{},
-  showInfo:false,zoomCard:null
+  screen:'setup',
+  numPlayers:2,
+  curPlayer:0,
+  mana:1,
+  card:null,
+  loading:false,
+  error:null,
+  history:[],
+  showHist:false,
+  histTab:0,
+  turn:1,
+  phase:'select',
+  seen:{},
+  showInfo:false,
+  zoomCard:null,
+  // NEW
+  zoomFace:0,
+  lives:[],
+  showConfirmRestart:false
 };
 
-/* ── UTILITIES ── */
 function getImg(card){
   if(!card)return null;
   const u=card.image_uris||(card.card_faces&&card.card_faces[0]&&card.card_faces[0].image_uris);
   return(u&&(u.large||u.normal))||null;
+}
+
+// NEW: get image for a specific face index
+function getFaceImg(card,faceIdx){
+  if(!card)return null;
+  if(card.card_faces&&card.card_faces[faceIdx]&&card.card_faces[faceIdx].image_uris){
+    const u=card.card_faces[faceIdx].image_uris;
+    return u.large||u.normal||null;
+  }
+  return getImg(card);
+}
+
+// NEW: true if card has two distinct face images (DFC)
+function isDFC(card){
+  return !!(card&&card.card_faces&&card.card_faces.length>1&&card.card_faces[0].image_uris&&card.card_faces[1].image_uris);
+}
+
+// NEW: get face data (name, type, oracle, power/toughness) for given face
+function getFaceData(card,faceIdx){
+  if(card.card_faces&&card.card_faces[faceIdx])return card.card_faces[faceIdx];
+  return card;
 }
 
 function el(tag,attrs,...children){
@@ -241,6 +313,7 @@ function render(){
     app.className='in-game';
     const frag=renderGame();
     if(state.zoomCard)frag.appendChild(renderZoomModal());
+    if(state.showConfirmRestart)frag.appendChild(renderConfirmRestart()); // NEW
     app.appendChild(frag);
   }
 }
@@ -300,8 +373,9 @@ const body=el('div',{className:'info-body'},
     makeRule(1,'Use <b>+</b> and <b>−</b> to select the mana cost.'),
     makeRule(2,'Press <b>Summon Creature</b> to generate a random card.'),
     makeRule(3,'Use <b>New Creature</b> if you want to reroll with the same cost.'),
-    makeRule(4,'Press <b>Next Turn</b> when you are done.'),
-    makeRule(5,'In the <b>history</b>, tap any card to view it in full size.')
+    makeRule(4,'Press <b>Pass Turn</b> to skip summoning this turn.'),
+    makeRule(5,'Press <b>Next Turn</b> when you are done.'),
+    makeRule(6,'In the <b>history</b>, tap any card to view it full size with oracle text.')
   ),
   el('hr',{className:'info-divider'}),
   makeSect('🎯','Cost guide',costes)
@@ -325,7 +399,12 @@ function renderGame(){
   const frag=document.createDocumentFragment();
   frag.appendChild(el('div',{className:`hist-overlay${state.showHist?' open':''}`,onClick:()=>{state.showHist=false;render();}}));
   frag.appendChild(renderHistSheet());
-  frag.appendChild(el('div',{className:'game'},renderTopBar(color),renderMain(color),renderPlayersStrip()));
+  frag.appendChild(el('div',{className:'game'},
+    renderTopBar(color),
+    renderLifeStrip(),      // NEW
+    renderMain(color),
+    renderPlayersStrip()
+  ));
   return frag;
 }
 
@@ -336,7 +415,35 @@ function renderTopBar(color){
       el('span',{className:'turn-lbl'},`Turn ${state.turn}`),
       el('span',{className:'player-badge',style:{color,borderColor:color}},`${ICONS[state.curPlayer]} Player ${state.curPlayer+1}`)
     ),
-    el('button',{className:'icon-btn',title:'View history',onClick:()=>{state.histTab=state.curPlayer;state.showHist=true;render();}},'📜')
+    // NEW: restart button added alongside history button
+    el('div',{className:'top-bar-right'},
+      el('button',{className:'icon-btn',title:'Restart game',onClick:()=>{state.showConfirmRestart=true;render();}},'↺'),
+      el('button',{className:'icon-btn',title:'View history',onClick:()=>{state.histTab=state.curPlayer;state.showHist=true;render();}},'📜')
+    )
+  );
+}
+
+// NEW: life counters row
+function renderLifeStrip(){
+  return el('div',{className:'life-strip'},
+    ...Array.from({length:state.numPlayers},(_,i)=>{
+      const life=state.lives[i];
+      const isActive=state.curPlayer===i;
+      const color=COLORS[i];
+      const valClass='life-val'+(life<=5?' critical':life<=10?' low':'');
+      return el('div',{
+        className:'life-chip'+(isActive?' active-player':''),
+        style:isActive?{borderColor:color,background:`${color}12`}:{}
+      },
+        el('span',{className:'life-icon',style:{color}},ICONS[i]),
+        el('span',{className:'life-lbl'},`P${i+1}`),
+        el('div',{className:'life-controls'},
+          el('button',{className:'life-adj',onClick:e=>{e.stopPropagation();adjustLife(i,-1);}},'-'),
+          el('span',{className:valClass,style:{color:life>10?color:undefined}},String(life)),
+          el('button',{className:'life-adj',onClick:e=>{e.stopPropagation();adjustLife(i,+1);}},'+')
+        )
+      );
+    })
   );
 }
 
@@ -353,6 +460,8 @@ function renderSelectPhase(color){
     className:'invoke-btn',style:{borderColor:color,color,background:`${color}18`},
     disabled:state.loading,onClick:summon
   },state.loading?el('span',{},[el('span',{className:'spin'},'⟳'),' Summoning...']):'⚡  Summon Creature');
+  // NEW: pass turn button
+  const passBtn=el('button',{className:'pass-btn',disabled:state.loading,onClick:passTurn},'— Pass Turn');
   const manaInput=el('input',{type:'number',min:'1',id:'mana-val',style:{color}});
   manaInput.value=String(state.mana);
   manaInput.addEventListener('input',e=>{const v=parseInt(e.target.value);if(!isNaN(v)&&v>=1)state.mana=v;});
@@ -363,7 +472,9 @@ function renderSelectPhase(color){
       el('button',{className:'mana-btn',onClick:()=>{state.mana=Math.max(1,state.mana-1);render();}},'−'),
       el('div',{className:'mana-display'},manaInput,el('span',{className:'mana-sub'},'mana')),
       el('button',{className:'mana-btn',onClick:()=>{state.mana=state.mana+1;render();}},'+')),
-    invokeBtn,errorBox
+    invokeBtn,
+    passBtn,
+    errorBox
   );
 }
 
@@ -438,7 +549,12 @@ function renderHistSheet(){
           ),
           ...(thumb?[el('img',{className:'hist-thumb',src:thumb,alt:entry.card.name,loading:'lazy'})]:[])
         );
-        row.addEventListener('click',ev=>{ev.stopPropagation();state.zoomCard=entry.card;render();});
+        row.addEventListener('click',ev=>{
+          ev.stopPropagation();
+          state.zoomCard=entry.card;
+          state.zoomFace=0; // NEW: always start on front face
+          render();
+        });
         return row;
       })
     ];
@@ -454,39 +570,107 @@ function renderHistSheet(){
   );
 }
 
-/* ── ZOOM MODAL ── */
+// NEW: full zoom modal with oracle text and DFC flip
 function renderZoomModal(){
   const card=state.zoomCard;
-  const imgUrl=getImg(card);
-  const close=()=>{state.zoomCard=null;render();};
-  const inner=el('div',{style:{display:'flex',flexDirection:'column',alignItems:'center'},onClick:e=>e.stopPropagation()},
-    imgUrl
-      ?el('img',{className:'zoom-img',src:imgUrl,alt:card.name})
-      :el('div',{className:'zoom-no-img'},el('p',{className:'zoom-no-name'},card.name),el('p',{className:'zoom-no-type'},card.type_line)),
-    el('div',{className:'zoom-info'},
-      el('h3',{className:'zoom-name'},card.name),
-      el('p',{className:'zoom-type'},card.type_line),
-      ...(card.power!=null?[el('p',{className:'zoom-pt'},`${card.power} / ${card.toughness}`)]:[]),
-      ...(card.set_name?[el('p',{className:'zoom-set'},card.set_name)]:[])
-    )
-  );
+  const fi=state.zoomFace;
+  const dfc=isDFC(card);
+  const face=getFaceData(card,fi);
+  const imgUrl=getFaceImg(card,fi);
+  const oracle=face.oracle_text||card.oracle_text||null;
+  const close=()=>{state.zoomCard=null;state.zoomFace=0;render();};
+
+  // Card image or fallback
+  const cardWrap=el('div',{className:'zoom-card-wrap'});
+  if(imgUrl){
+    cardWrap.appendChild(el('img',{className:'zoom-img',src:imgUrl,alt:face.name||card.name}));
+  }else{
+    cardWrap.appendChild(el('div',{className:'zoom-no-img'},
+      el('p',{className:'zoom-no-name'},card.name),
+      el('p',{className:'zoom-no-type'},card.type_line)
+    ));
+  }
+  // DFC flip button
+  if(dfc){
+    cardWrap.appendChild(el('button',{className:'zoom-flip-btn',onClick:e=>{
+      e.stopPropagation();
+      state.zoomFace=fi===0?1:0;
+      render();
+    }},`↩ Show ${fi===0?'Back':'Front'} Face`));
+  }
+
+  // Info block
+  const info=el('div',{className:'zoom-info'});
+  info.appendChild(el('h3',{className:'zoom-name'},face.name||card.name));
+  info.appendChild(el('p',{className:'zoom-type'},face.type_line||card.type_line));
+  if(face.power!=null)info.appendChild(el('p',{className:'zoom-pt'},`${face.power} / ${face.toughness}`));
+  // Oracle text: reminder text (parentheses) rendered in muted italic
+  if(oracle){
+    const oEl=el('p',{className:'zoom-oracle'});
+    oracle.split(/(\([^)]+\))/g).forEach(part=>{
+      if(part.startsWith('(')&&part.endsWith(')')){
+        const em=document.createElement('em');em.textContent=part;oEl.appendChild(em);
+      }else{
+        oEl.appendChild(document.createTextNode(part));
+      }
+    });
+    info.appendChild(oEl);
+  }
+  if(card.set_name)info.appendChild(el('p',{className:'zoom-set'},card.set_name));
+
   return el('div',{className:'zoom-overlay',onClick:close},
     el('button',{className:'zoom-close',onClick:close},'✕'),
-    inner
+    el('div',{style:{display:'flex',flexDirection:'column',alignItems:'center',width:'100%',maxWidth:'300px'},onClick:e=>e.stopPropagation()},
+      cardWrap,info)
+  );
+}
+
+// NEW: restart confirmation modal
+function renderConfirmRestart(){
+  return el('div',{className:'confirm-overlay',onClick:()=>{state.showConfirmRestart=false;render();}},
+    el('div',{className:'confirm-box',onClick:e=>e.stopPropagation()},
+      el('p',{className:'confirm-title'},'Restart Game'),
+      el('p',{className:'confirm-text'},'All progress, history and life totals will be reset. Are you sure?'),
+      el('div',{className:'confirm-btns'},
+        el('button',{className:'confirm-btn cancel',onClick:()=>{state.showConfirmRestart=false;render();}},'Cancel'),
+        el('button',{className:'confirm-btn danger',onClick:()=>{state.showConfirmRestart=false;startGame();}},'Restart')
+      )
+    )
   );
 }
 
 /* ── ACTIONS ── */
 function startGame(){
-  Object.assign(state,{screen:'game',curPlayer:0,mana:1,card:null,history:[],
-    turn:1,phase:'select',error:null,seen:{},zoomCard:null,showHist:false});
+  Object.assign(state,{
+    screen:'game',curPlayer:0,mana:1,card:null,history:[],
+    turn:1,phase:'select',error:null,seen:{},zoomCard:null,
+    zoomFace:0,showHist:false,showConfirmRestart:false,
+    lives:Array.from({length:state.numPlayers},()=>STARTING_LIFE) // NEW
+  });
+  render();
+}
+
+// NEW: adjust a player's life total
+function adjustLife(playerIdx,delta){
+  state.lives[playerIdx]=Math.max(0,state.lives[playerIdx]+delta);
+  if(delta<0)vib([12]);
+  render();
+}
+
+// NEW: pass turn without summoning
+function passTurn(){
+  const next=(state.curPlayer+1)%state.numPlayers;
+  state.curPlayer=next;
+  if(next===0)state.turn++;
+  state.card=null;state.error=null;state.phase='select';state.mana=1;
+  vib([40,20,40]);
+  showTurnBanner(next);
   render();
 }
 
 async function summon(){
   if(state.loading)return;
   
-  // Sincronizar el mana si el usuario escribió en el input
   const inp = document.getElementById('mana-val');
   if(inp){
     const v = parseInt(inp.value);
@@ -496,17 +680,14 @@ async function summon(){
   state.loading = true;
   state.error = null;
   render();
-  vib([25, 15, 45]); // Mantener la vibración si te gusta
+  vib([25, 15, 45]);
 
-  // Memoria: Excluir las últimas 6 cartas vistas para este coste
   const seenList = state.seen[state.mana] || [];
   const excl = seenList.slice(-6).map(id => ` -id:${id}`).join('');
   
-  // Construcción del Query para el endpoint /random
   const q = encodeURIComponent(`t:creature game:paper -is:digital -is:funny -is:token -name:^A- cmc:${state.mana}${excl}`);
   
   try {
-    // CAMBIO CLAVE: Uso del endpoint "random" en lugar de "search"
     const res = await fetch(`https://api.scryfall.com/cards/random?q=${q}`);
     
     if(res.status === 404){
@@ -518,11 +699,9 @@ async function summon(){
     
     const data = await res.json();
     
-    // Guardar en el historial de "vistas" para evitar repeticiones
     if(!state.seen[state.mana]) state.seen[state.mana] = [];
     state.seen[state.mana].push(data.id);
     
-    // Actualizar el estado del juego
     state.card = data;
     state.history.push({
       player: state.curPlayer,
@@ -532,7 +711,7 @@ async function summon(){
     });
     
     state.phase = 'revealed';
-    triggerFlash(COLORS[state.curPlayer]); // Efecto visual opcional
+    triggerFlash(COLORS[state.curPlayer]);
 
   } catch(e) {
     state.error = 'Connection error with Scryfall. Please try again.';
