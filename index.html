@@ -179,6 +179,11 @@ body{font-family:'Palatino Linotype',Palatino,Georgia,serif;color:#e8dcc8;-webki
 .confirm-btn.danger{background:rgba(198,40,40,.1);border:1px solid rgba(198,40,40,.3);color:#ff8a80}
 .confirm-btn.danger:hover{background:rgba(198,40,40,.18)}
 
+/* ── RESUME BUTTON ── */
+.resume-btn{width:100%;padding:12px 20px;border:1px solid rgba(201,168,76,.2);background:transparent;color:rgba(201,168,76,.55);font-family:inherit;font-size:12px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;border-radius:4px;cursor:pointer;transition:all .22s;margin-bottom:12px}
+.resume-btn:hover{border-color:rgba(201,168,76,.4);color:#c9a84c;background:rgba(201,168,76,.06)}
+.resume-hint{font-size:10px;color:rgba(232,220,200,.2);letter-spacing:.06em;margin-bottom:20px}
+
 /* ── SPINNER ── */
 .spin{display:inline-block;animation:spin 1s linear infinite}
 
@@ -202,6 +207,35 @@ button{-webkit-tap-highlight-color:transparent;touch-action:manipulation}
 const COLORS=['#c9a84c','#42a5f5','#ef5350','#66bb6a'];
 const ICONS=['◆','◇','○','□'];
 const STARTING_LIFE=20;
+const SESSION_KEY='momir_session';
+
+// Fields that make sense to persist (no transient UI state)
+const SAVE_FIELDS=['numPlayers','curPlayer','mana','card','history','histTab','turn','phase','seen','lives'];
+
+function saveSession(){
+  try{
+    const snapshot={};
+    SAVE_FIELDS.forEach(k=>{snapshot[k]=state[k];});
+    sessionStorage.setItem(SESSION_KEY,JSON.stringify(snapshot));
+  }catch(e){}
+}
+
+function clearSession(){
+  try{sessionStorage.removeItem(SESSION_KEY);}catch(e){}
+}
+
+function loadSession(){
+  try{
+    const raw=sessionStorage.getItem(SESSION_KEY);
+    if(!raw)return false;
+    const snap=JSON.parse(raw);
+    // Basic sanity check
+    if(!snap||typeof snap.turn!=='number'||!Array.isArray(snap.history))return false;
+    SAVE_FIELDS.forEach(k=>{if(snap[k]!==undefined)state[k]=snap[k];});
+    state.screen='game';
+    return true;
+  }catch(e){return false;}
+}
 
 const state={
   screen:'setup',
@@ -310,6 +344,7 @@ function render(){
     if(state.showInfo)frag.appendChild(renderInfoModal());
     app.appendChild(frag);
   }else{
+    saveSession(); // persist on every in-game render
     app.className='in-game';
     const frag=renderGame();
     if(state.zoomCard)frag.appendChild(renderZoomModal());
@@ -320,6 +355,14 @@ function render(){
 
 /* ── SETUP SCREEN ── */
 function renderSetup(){
+  const hasSaved=!!sessionStorage.getItem(SESSION_KEY);
+  const savedInfo=(()=>{
+    try{
+      const snap=JSON.parse(sessionStorage.getItem(SESSION_KEY));
+      if(!snap)return null;
+      return `Turn ${snap.turn} · ${snap.numPlayers} players`;
+    }catch(e){return null;}
+  })();
   return el('div',{className:'setup-screen'},
     el('div',{className:'setup-card'},
       el('button',{className:'info-btn',title:'How to play?',onClick:()=>{state.showInfo=true;render();}},'?'),
@@ -331,6 +374,10 @@ function renderSetup(){
         ...[2,3,4].map(n=>el('button',{className:`player-btn${state.numPlayers===n?' active':''}`,onClick:()=>{state.numPlayers=n;render();}},String(n)))
       ),
       el('button',{className:'start-btn',onClick:startGame},'⚔  Start Game'),
+      ...(hasSaved&&savedInfo?[
+        el('button',{className:'resume-btn',onClick:resumeGame},`↩  Resume Game`),
+        el('p',{className:'resume-hint'},savedInfo)
+      ]:[]),
       el('p',{className:'flavor-text'},'"From chaos, the creature emerges."')
     )
   );
@@ -633,14 +680,19 @@ function renderConfirmRestart(){
       el('p',{className:'confirm-text'},'All progress, history and life totals will be reset. Are you sure?'),
       el('div',{className:'confirm-btns'},
         el('button',{className:'confirm-btn cancel',onClick:()=>{state.showConfirmRestart=false;render();}},'Cancel'),
-        el('button',{className:'confirm-btn danger',onClick:()=>{state.showConfirmRestart=false;startGame();}},'Restart')
+        el('button',{className:'confirm-btn danger',onClick:()=>{state.showConfirmRestart=false;clearSession();startGame();}},'Restart')
       )
     )
   );
 }
 
 /* ── ACTIONS ── */
+function resumeGame(){
+  if(loadSession())render();
+}
+
 function startGame(){
+  clearSession(); // new game wipes any saved session
   Object.assign(state,{
     screen:'game',curPlayer:0,mana:1,card:null,history:[],
     turn:1,phase:'select',error:null,seen:{},zoomCard:null,
@@ -731,6 +783,7 @@ function nextTurn(){
   render();
 }
 
+loadSession();
 render();
 </script>
 </body>
