@@ -155,15 +155,18 @@ body{font-family:'Palatino Linotype',Palatino,Georgia,serif;color:#e8dcc8;-webki
 .zoom-set{font-size:10px;color:rgba(232,220,200,.18);letter-spacing:.12em;text-transform:uppercase;margin-top:8px}
 
 /* ── NEW: LIFE COUNTERS ── */
-.life-strip{display:flex;justify-content:center;gap:6px;padding:7px 14px;border-bottom:1px solid rgba(255,255,255,.04);background:rgba(0,0,0,.18);flex-shrink:0}
-.life-chip{display:flex;align-items:center;gap:6px;padding:4px 9px;border:1px solid rgba(255,255,255,.06);border-radius:20px;background:rgba(255,255,255,.015);transition:border-color .25s,background .25s}
+.life-strip{display:flex;flex-wrap:wrap;justify-content:center;gap:6px;padding:7px 14px;border-bottom:1px solid rgba(255,255,255,.04);background:rgba(0,0,0,.18);flex-shrink:0}
+.life-strip.four-players{display:grid;grid-template-columns:1fr 1fr;gap:5px;padding:6px 10px}
+.life-chip{display:flex;align-items:center;gap:6px;padding:4px 9px;border:1px solid rgba(255,255,255,.06);border-radius:20px;background:rgba(255,255,255,.015);transition:border-color .25s,background .25s;min-width:0}
+.life-strip.four-players .life-chip{justify-content:space-between;padding:5px 10px;border-radius:8px}
 .life-chip.active-player{border-width:1px}
-.life-icon{font-size:10px}
-.life-lbl{font-size:10px;letter-spacing:.04em;font-variant:small-caps;color:rgba(232,220,200,.35)}
-.life-controls{display:flex;align-items:center;gap:3px}
-.life-adj{width:20px;height:20px;border-radius:50%;border:1px solid rgba(255,255,255,.08);background:rgba(255,255,255,.03);color:rgba(232,220,200,.5);cursor:pointer;font-size:14px;display:flex;align-items:center;justify-content:center;transition:all .15s;font-family:inherit;padding:0;line-height:1}
+.life-icon{font-size:10px;flex-shrink:0}
+.life-lbl{font-size:10px;letter-spacing:.04em;font-variant:small-caps;color:rgba(232,220,200,.35);flex-shrink:0}
+.life-controls{display:flex;align-items:center;gap:3px;margin-left:auto}
+.life-adj{width:26px;height:26px;border-radius:50%;border:1px solid rgba(255,255,255,.08);background:rgba(255,255,255,.03);color:rgba(232,220,200,.5);cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;transition:all .15s;font-family:inherit;padding:0;line-height:1;flex-shrink:0;touch-action:manipulation}
 .life-adj:hover{background:rgba(255,255,255,.08);color:#e8dcc8}
-.life-val{font-size:15px;font-weight:700;min-width:24px;text-align:center;transition:color .2s}
+.life-adj:active{transform:scale(.9)}
+.life-val{font-size:15px;font-weight:700;min-width:26px;text-align:center;transition:color .2s}
 .life-val.low{color:#ef9a9a}
 .life-val.critical{color:#ef5350;animation:heartbeat 1s ease-in-out infinite}
 
@@ -216,20 +219,19 @@ function saveSession(){
   try{
     const snapshot={};
     SAVE_FIELDS.forEach(k=>{snapshot[k]=state[k];});
-    sessionStorage.setItem(SESSION_KEY,JSON.stringify(snapshot));
+    localStorage.setItem(SESSION_KEY,JSON.stringify(snapshot));
   }catch(e){}
 }
 
 function clearSession(){
-  try{sessionStorage.removeItem(SESSION_KEY);}catch(e){}
+  try{localStorage.removeItem(SESSION_KEY);}catch(e){}
 }
 
 function loadSession(){
   try{
-    const raw=sessionStorage.getItem(SESSION_KEY);
+    const raw=localStorage.getItem(SESSION_KEY);
     if(!raw)return false;
     const snap=JSON.parse(raw);
-    // Basic sanity check
     if(!snap||typeof snap.turn!=='number'||!Array.isArray(snap.history))return false;
     SAVE_FIELDS.forEach(k=>{if(snap[k]!==undefined)state[k]=snap[k];});
     state.screen='game';
@@ -355,10 +357,10 @@ function render(){
 
 /* ── SETUP SCREEN ── */
 function renderSetup(){
-  const hasSaved=!!sessionStorage.getItem(SESSION_KEY);
+  const hasSaved=!!localStorage.getItem(SESSION_KEY);
   const savedInfo=(()=>{
     try{
-      const snap=JSON.parse(sessionStorage.getItem(SESSION_KEY));
+      const snap=JSON.parse(localStorage.getItem(SESSION_KEY));
       if(!snap)return null;
       return `Turn ${snap.turn} · ${snap.numPlayers} players`;
     }catch(e){return null;}
@@ -472,7 +474,8 @@ function renderTopBar(color){
 
 // NEW: life counters row
 function renderLifeStrip(){
-  return el('div',{className:'life-strip'},
+  const four=state.numPlayers===4;
+  return el('div',{className:'life-strip'+(four?' four-players':'')},
     ...Array.from({length:state.numPlayers},(_,i)=>{
       const life=state.lives[i];
       const isActive=state.curPlayer===i;
